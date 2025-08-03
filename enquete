@@ -8,9 +8,9 @@
     body {
       font-family: Arial, sans-serif;
       padding: 20px;
-
       background: #f7f7f7;
     }
+
     h2 {
       color: #333;
     }
@@ -24,9 +24,9 @@
       background-color: #0077b5;
       color: white;
       border: none;
-
       border-radius: 5px;
     }
+
     .bar-container {
       background: #ddd;
       height: 20px;
@@ -40,9 +40,9 @@
       background: #4CAF50;
     }
     .results {
-
       margin-top: 20px;
     }
+
   </style>
 </head>
 <body>
@@ -50,14 +50,12 @@
   <h2>Qual rede social você usa?</h2>
   <form id="formEnquete">
     <label><input type="checkbox" name="rede" value="LinkedIn"> LinkedIn</label>
-    <label><input type="checkbox" name="rede" 
+    <label><input type="checkbox" name="rede" value="Instagram"> Instagram</label>
 
-value="Instagram"> Instagram</label>
     <label><input type="checkbox" name="rede" value="Twitter"> Twitter</label>
     <label><input type="checkbox" name="rede" value="Facebook"> Facebook</label>
     <label><input type="checkbox" name="rede" value="WhatsApp"> WhatsApp</label>
     <button type="submit">Votar</button>
-
   </form>
 
   <div class="results" id="resultados" style="display:none;"></div>
@@ -70,7 +68,6 @@ value="Instagram"> Instagram</label>
       "Twitter": 5,
       "Facebook": 4,
       "WhatsApp": 6
-
     };
 
     const form = document.getElementById("formEnquete");
@@ -78,9 +75,8 @@ value="Instagram"> Instagram</label>
 
     form.addEventListener("submit", function(e) {
       e.preventDefault();
-      const selecionados = Array.from(document.querySele
+      const selecionados = Array.from(document.querySelectorAll('input[name="rede"]:checked'));
 
-ctorAll('input[name="rede"]:checked'));
 
       if (selecionados.length === 0) {
         alert("Selecione ao menos uma opção.");
@@ -94,6 +90,7 @@ ctorAll('input[name="rede"]:checked'));
       mostrarResultados();
     });
 
+
     function mostrarResultados() {
       form.style.display = "none";
       resultDiv.style.display = "block";
@@ -101,6 +98,7 @@ ctorAll('input[name="rede"]:checked'));
       resultDiv.innerHTML = "<h3>Resultado da Enquete:</h3>";
 
       for (const [rede, qtd] of Object.entries(votos)) {
+
         const porcentagem = totalVotos ? Math.round((qtd / totalVotos) * 100) : 0;
         resultDiv.innerHTML += `
           <p>${rede}: ${qtd} voto(s) (${porcentagem}%)</p>
@@ -108,10 +106,11 @@ ctorAll('input[name="rede"]:checked'));
             <div class="bar" style="width: ${porcentagem}%"></div>
           </div>
         `;
-
       }
     }
+
   </script>
 
 </body>
 </html>
+

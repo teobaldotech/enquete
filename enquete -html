@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Enquete - Redes Sociais</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+
+      background: #f7f7f7;
+    }
+    h2 {
+      color: #333;
+    }
+    label {
+      display: block;
+      margin: 10px 0;
+    }
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      background-color: #0077b5;
+      color: white;
+      border: none;
+
+      border-radius: 5px;
+    }
+    .bar-container {
+      background: #ddd;
+      height: 20px;
+      margin-bottom: 10px;
+      width: 100%;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .bar {
+      height: 100%;
+      background: #4CAF50;
+    }
+    .results {
+
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Qual rede social você usa?</h2>
+  <form id="formEnquete">
+    <label><input type="checkbox" name="rede" value="LinkedIn"> LinkedIn</label>
+    <label><input type="checkbox" name="rede" 
+
+value="Instagram"> Instagram</label>
+    <label><input type="checkbox" name="rede" value="Twitter"> Twitter</label>
+    <label><input type="checkbox" name="rede" value="Facebook"> Facebook</label>
+    <label><input type="checkbox" name="rede" value="WhatsApp"> WhatsApp</label>
+    <button type="submit">Votar</button>
+
+  </form>
+
+  <div class="results" id="resultados" style="display:none;"></div>
+
+  <script>
+    // Votos iniciais somados para total 30 votos
+    const votos = {
+      "LinkedIn": 6,
+      "Instagram": 9,
+      "Twitter": 5,
+      "Facebook": 4,
+      "WhatsApp": 6
+
+    };
+
+    const form = document.getElementById("formEnquete");
+    const resultDiv = document.getElementById("resultados");
+
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
+      const selecionados = Array.from(document.querySele
+
+ctorAll('input[name="rede"]:checked'));
+
+      if (selecionados.length === 0) {
+        alert("Selecione ao menos uma opção.");
+        return;
+      }
+
+      selecionados.forEach(input => {
+        votos[input.value]++;
+      });
+
+      mostrarResultados();
+    });
+
+    function mostrarResultados() {
+      form.style.display = "none";
+      resultDiv.style.display = "block";
+      const totalVotos = Object.values(votos).reduce((a, b) => a + b, 0);
+      resultDiv.innerHTML = "<h3>Resultado da Enquete:</h3>";
+
+      for (const [rede, qtd] of Object.entries(votos)) {
+        const porcentagem = totalVotos ? Math.round((qtd / totalVotos) * 100) : 0;
+        resultDiv.innerHTML += `
+          <p>${rede}: ${qtd} voto(s) (${porcentagem}%)</p>
+          <div class="bar-container">
+            <div class="bar" style="width: ${porcentagem}%"></div>
+          </div>
+        `;
+
+      }
+    }
+  </script>
+
+</body>
+</html>

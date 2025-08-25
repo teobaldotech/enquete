@@ -6,62 +6,120 @@
   <title>Enquete - Redes Sociais</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      background: #f7f7f7;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      padding: 32px;
+      background: linear-gradient(135deg, #e0e7ff 0%, #f7f7f7 100%);
     }
 
     h2 {
-      color: #333;
+      color: #222e50;
+      margin-bottom: 12px;
+      letter-spacing: 1px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 4px 20px #222e5012;
+      padding: 32px;
+      max-width: 430px;
+      margin: 0 auto;
     }
     label {
-      display: block;
-      margin: 10px 0;
+      display: flex;
+      align-items: center;
+      margin: 14px 0 0 0;
+      cursor: pointer;
+      font-size: 1.08em;
+      user-select: none;
+    }
+    input[type="checkbox"] {
+      accent-color: #6366f1;
+      margin-right: 10px;
+      width: 18px;
+      height: 18px;
+    }
+    .btn-row {
+      display: flex;
+      gap: 14px;
+      margin-top: 26px;
     }
     button {
-      margin-top: 15px;
-      padding: 10px 20px;
-      background-color: #0077b5;
-      color: white;
+      padding: 10px 28px;
+      font-size: 1em;
+      background: #6366f1;
+      color: #fff;
       border: none;
-      border-radius: 5px;
+      border-radius: 7px;
+      box-shadow: 0 2px 8px #6366f122;
+      cursor: pointer;
+      transition: background 0.2s;
     }
-
+    button:hover {
+      background: #4f46e5;
+    }
+    button[type="reset"] {
+      background: #f1f5f9;
+      color: #222e50;
+      border: 1px solid #6366f1;
+    }
+    button[type="reset"]:hover {
+      background: #e0e7ff;
+    }
+    .results {
+      margin-top: 28px;
+      padding: 18px 0 0 0;
+    }
     .bar-container {
-      background: #ddd;
-      height: 20px;
-      margin-bottom: 10px;
+      background: #e5e7eb;
+      height: 22px;
+      border-radius: 11px;
       width: 100%;
-      border-radius: 4px;
+      margin-bottom: 15px;
       overflow: hidden;
+      box-shadow: 0 1px 4px #6366f111;
     }
     .bar {
       height: 100%;
-      background: #4CAF50;
+      background: linear-gradient(90deg, #6366f1 50%, #60a5fa 100%);
+      transition: width 0.5s cubic-bezier(.4,0,.2,1);
+      min-width: 2%;
+      border-radius: 11px 0 0 11px;
     }
-    .results {
-      margin-top: 20px;
+    .bar-label {
+      font-size: 0.98em;
+      color: #222e50;
+      margin-bottom: 1px;
+      font-weight: 500;
+      display: flex;
+      justify-content: space-between;
     }
-
+    .voted-msg {
+      color: #059669;
+      margin-top: 10px;
+      font-weight: 600;
+      font-size: 1.03em;
+    }
   </style>
 </head>
 <body>
-
-  <h2>Qual rede social você usa?</h2>
-  <form id="formEnquete">
-    <label><input type="checkbox" name="rede" value="LinkedIn"> LinkedIn</label>
-    <label><input type="checkbox" name="rede" value="Instagram"> Instagram</label>
-
-    <label><input type="checkbox" name="rede" value="Twitter"> Twitter</label>
-    <label><input type="checkbox" name="rede" value="Facebook"> Facebook</label>
-    <label><input type="checkbox" name="rede" value="WhatsApp"> WhatsApp</label>
-    <button type="submit">Votar</button>
-  </form>
-
-  <div class="results" id="resultados" style="display:none;"></div>
-
+  <div class="card">
+    <h2>Qual rede social você usa?</h2>
+    <form id="formEnquete" autocomplete="off">
+      <label><input type="checkbox" name="rede" value="LinkedIn"> LinkedIn</label>
+      <label><input type="checkbox" name="rede" value="Instagram"> Instagram</label>
+      <label><input type="checkbox" name="rede" value="Twitter"> Twitter</label>
+      <label><input type="checkbox" name="rede" value="Facebook"> Facebook</label>
+      <label><input type="checkbox" name="rede" value="WhatsApp"> WhatsApp</label>
+      <div class="btn-row">
+        <button type="submit">Votar</button>
+        <button type="reset">Reset</button>
+      </div>
+    </form>
+    <div class="results" id="resultados"></div>
+    <div class="voted-msg" id="msgVotou" style="display:none;">Obrigado por votar!</div>
+  </div>
   <script>
-    // Votos iniciais somados para total 30 votos
+    // Votos iniciais simulados
     const votos = {
       "LinkedIn": 6,
       "Instagram": 9,
@@ -70,13 +128,55 @@
       "WhatsApp": 6
     };
 
+    // Para mostrar resultado parcial antes do voto
+    let votosSimulados = {...votos};
+
     const form = document.getElementById("formEnquete");
     const resultDiv = document.getElementById("resultados");
+    const msgVotou = document.getElementById("msgVotou");
+    const checkboxes = Array.from(document.querySelectorAll('input[name="rede"]'));
 
+    // Mostra resultados (antes de votar e após)
+    function mostrarResultados(votosParaMostrar) {
+      const totalVotos = Object.values(votosParaMostrar).reduce((a, b) => a + b, 0);
+      let html = "<h3 style='margin-bottom:8px;'>Resultado da Enquete:</h3>";
+      for (const [rede, qtd] of Object.entries(votosParaMostrar)) {
+        const porcentagem = totalVotos ? Math.round((qtd / totalVotos) * 100) : 0;
+        html += `
+          <div class="bar-label">
+            <span>${rede}</span>
+            <span>${qtd} voto(s) • ${porcentagem}%</span>
+          </div>
+          <div class="bar-container">
+            <div class="bar" style="width: ${porcentagem}%;"></div>
+          </div>
+        `;
+      }
+      resultDiv.innerHTML = html;
+    }
+
+    // Atualiza resultados simulando a seleção do usuário ANTES de votar
+    function mostrarResultadosParciais() {
+      // Clona votos
+      votosSimulados = {...votos};
+      checkboxes.forEach(input => {
+        if (input.checked) votosSimulados[input.value]++;
+      });
+      mostrarResultados(votosSimulados);
+    }
+
+    // Inicialização: mostra resultados parciais
+    mostrarResultadosParciais();
+
+    // Ao marcar/desmarcar, atualiza resultados
+    checkboxes.forEach(input => {
+      input.addEventListener('change', mostrarResultadosParciais);
+    });
+
+    // Ao votar, soma aos votos reais e mostra mensagem + trava formulário
     form.addEventListener("submit", function(e) {
       e.preventDefault();
-      const selecionados = Array.from(document.querySelectorAll('input[name="rede"]:checked'));
-
+      const selecionados = checkboxes.filter(input => input.checked);
 
       if (selecionados.length === 0) {
         alert("Selecione ao menos uma opção.");
@@ -87,30 +187,29 @@
         votos[input.value]++;
       });
 
-      mostrarResultados();
+      mostrarResultados(votos);
+      msgVotou.style.display = "block";
+      // Desabilita todos os inputs e botões
+      checkboxes.forEach(input => input.disabled = true);
+      form.querySelector('button[type="submit"]').disabled = true;
+      form.querySelector('button[type="reset"]').disabled = true;
     });
 
-
-    function mostrarResultados() {
-      form.style.display = "none";
-      resultDiv.style.display = "block";
-      const totalVotos = Object.values(votos).reduce((a, b) => a + b, 0);
-      resultDiv.innerHTML = "<h3>Resultado da Enquete:</h3>";
-
-      for (const [rede, qtd] of Object.entries(votos)) {
-
-        const porcentagem = totalVotos ? Math.round((qtd / totalVotos) * 100) : 0;
-        resultDiv.innerHTML += `
-          <p>${rede}: ${qtd} voto(s) (${porcentagem}%)</p>
-          <div class="bar-container">
-            <div class="bar" style="width: ${porcentagem}%"></div>
-          </div>
-        `;
-      }
-    }
+    // Ao resetar, limpa seleção e volta aos resultados reais
+    form.addEventListener("reset", function(e) {
+      setTimeout(() => {
+        msgVotou.style.display = "none";
+        checkboxes.forEach(input => input.disabled = false);
+        form.querySelector('button[type="submit"]').disabled = false;
+        form.querySelector('button[type="reset"]').disabled = false;
+        mostrarResultados(votos); // volta ao real
+        mostrarResultadosParciais(); // e já mostra parcial (sem votos do user)
+      }, 10);
+    });
 
   </script>
-
 </body>
 </html>
+
+
 

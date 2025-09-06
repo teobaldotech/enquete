@@ -3,18 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Enquete - Redes Sociais</title>
+  <title>Enquete - Estilo Musical</title>
   <style>
     body {
       font-family: 'Segoe UI', Arial, sans-serif;
       padding: 32px;
       background: linear-gradient(135deg, #e0e7ff 0%, #f7f7f7 100%);
-    }
-
-    h2 {
-      color: #222e50;
-      margin-bottom: 12px;
-      letter-spacing: 1px;
     }
     .card {
       background: #fff;
@@ -23,6 +17,11 @@
       padding: 32px;
       max-width: 430px;
       margin: 0 auto;
+    }
+    h2 {
+      color: #222e50;
+      margin-bottom: 12px;
+      letter-spacing: 1px;
     }
     label {
       display: flex;
@@ -98,53 +97,59 @@
       margin-top: 10px;
       font-weight: 600;
       font-size: 1.03em;
+      display: none;
+    }
+    .error-msg {
+      color: #dc2626;
+      margin-top: 10px;
+      font-weight: 500;
+      font-size: 0.98em;
+      display: none;
     }
   </style>
 </head>
 <body>
   <div class="card">
-    <h2>Qual rede social você usa?</h2>
+    <h2>Qual estilo musical você mais escuta?</h2>
     <form id="formEnquete" autocomplete="off">
-      <label><input type="checkbox" name="rede" value="LinkedIn"> LinkedIn</label>
-      <label><input type="checkbox" name="rede" value="Instagram"> Instagram</label>
-      <label><input type="checkbox" name="rede" value="Twitter"> Twitter</label>
-      <label><input type="checkbox" name="rede" value="Facebook"> Facebook</label>
-      <label><input type="checkbox" name="rede" value="WhatsApp"> WhatsApp</label>
+      <label><input type="checkbox" name="estilo" value="Sertanejo"> Sertanejo</label>
+      <label><input type="checkbox" name="estilo" value="Rock"> Rock</label>
+      <label><input type="checkbox" name="estilo" value="Pop"> Pop</label>
+      <label><input type="checkbox" name="estilo" value="Funk"> Funk</label>
+      <label><input type="checkbox" name="estilo" value="MPB"> MPB</label>
       <div class="btn-row">
         <button type="submit">Votar</button>
         <button type="reset">Reset</button>
       </div>
+      <div class="error-msg" id="erroMsg"></div>
     </form>
     <div class="results" id="resultados"></div>
-    <div class="voted-msg" id="msgVotou" style="display:none;">Obrigado por votar!</div>
+    <div class="voted-msg" id="msgVotou">Obrigado por votar!</div>
   </div>
-  <script>
-    // Votos iniciais simulados
-    const votos = {
-      "LinkedIn": 6,
-      "Instagram": 9,
-      "Twitter": 5,
-      "Facebook": 4,
-      "WhatsApp": 6
-    };
 
-    // Para mostrar resultado parcial antes do voto
-    let votosSimulados = {...votos};
+  <script>
+    const votos = {
+      "Sertanejo": 7,
+      "Rock": 5,
+      "Pop": 8,
+      "Funk": 4,
+      "MPB": 6
+    };
 
     const form = document.getElementById("formEnquete");
     const resultDiv = document.getElementById("resultados");
     const msgVotou = document.getElementById("msgVotou");
-    const checkboxes = Array.from(document.querySelectorAll('input[name="rede"]'));
+    const erroMsg = document.getElementById("erroMsg");
+    const checkboxes = Array.from(document.querySelectorAll('input[name="estilo"]'));
 
-    // Mostra resultados (antes de votar e após)
     function mostrarResultados(votosParaMostrar) {
-      const totalVotos = Object.values(votosParaMostrar).reduce((a, b) => a + b, 0);
+      const total = Object.values(votosParaMostrar).reduce((a, b) => a + b, 0);
       let html = "<h3 style='margin-bottom:8px;'>Resultado da Enquete:</h3>";
-      for (const [rede, qtd] of Object.entries(votosParaMostrar)) {
-        const porcentagem = totalVotos ? Math.round((qtd / totalVotos) * 100) : 0;
+      for (const [estilo, qtd] of Object.entries(votosParaMostrar)) {
+        const porcentagem = total ? Math.round((qtd / total) * 100) : 0;
         html += `
           <div class="bar-label">
-            <span>${rede}</span>
+            <span>${estilo}</span>
             <span>${qtd} voto(s) • ${porcentagem}%</span>
           </div>
           <div class="bar-container">
@@ -155,31 +160,28 @@
       resultDiv.innerHTML = html;
     }
 
-    // Atualiza resultados simulando a seleção do usuário ANTES de votar
     function mostrarResultadosParciais() {
-      // Clona votos
-      votosSimulados = {...votos};
+      const votosSimulados = {...votos};
       checkboxes.forEach(input => {
         if (input.checked) votosSimulados[input.value]++;
       });
       mostrarResultados(votosSimulados);
     }
 
-    // Inicialização: mostra resultados parciais
     mostrarResultadosParciais();
-
-    // Ao marcar/desmarcar, atualiza resultados
     checkboxes.forEach(input => {
       input.addEventListener('change', mostrarResultadosParciais);
     });
 
-    // Ao votar, soma aos votos reais e mostra mensagem + trava formulário
     form.addEventListener("submit", function(e) {
       e.preventDefault();
-      const selecionados = checkboxes.filter(input => input.checked);
+      erroMsg.style.display = "none";
+      msgVotou.style.display = "none";
 
+      const selecionados = checkboxes.filter(input => input.checked);
       if (selecionados.length === 0) {
-        alert("Selecione ao menos uma opção.");
+        erroMsg.textContent = "⚠️ Selecione ao menos um estilo musical.";
+        erroMsg.style.display = "block";
         return;
       }
 
@@ -189,27 +191,25 @@
 
       mostrarResultados(votos);
       msgVotou.style.display = "block";
-      // Desabilita todos os inputs e botões
-      checkboxes.forEach(input => input.disabled = true);
-      form.querySelector('button[type="submit"]').disabled = true;
-      form.querySelector('button[type="reset"]').disabled = true;
+
+      // Reinicia automaticamente após 3 segundos
+      setTimeout(() => {
+        form.reset();
+        msgVotou.style.display = "none";
+        erroMsg.style.display = "none";
+        mostrarResultadosParciais();
+      }, 3000);
     });
 
-    // Ao resetar, limpa seleção e volta aos resultados reais
     form.addEventListener("reset", function(e) {
       setTimeout(() => {
+        checkboxes.forEach(input => input.checked = false);
+        mostrarResultados(votos);
+        mostrarResultadosParciais();
+        erroMsg.style.display = "none";
         msgVotou.style.display = "none";
-        checkboxes.forEach(input => input.disabled = false);
-        form.querySelector('button[type="submit"]').disabled = false;
-        form.querySelector('button[type="reset"]').disabled = false;
-        mostrarResultados(votos); // volta ao real
-        mostrarResultadosParciais(); // e já mostra parcial (sem votos do user)
       }, 10);
     });
-
   </script>
 </body>
 </html>
-
-
-
